@@ -1,17 +1,16 @@
 <script setup>
+import { Button } from "@/components/ui/"
 const { $client } = useNuxtApp()
 
-const user = $client.user.useQuery({}, {
-  initialData: "mantap"
-})
 const users = $client.users.useQuery({}, {
   initialData: []
 })
 </script>
 <template>
-  <pre>
-    {{ JSON.stringify(user.data.value, null, 4) }}
-  </pre>
+  <Button variant="outline">
+    hello
+  </Button>
+
   <pre>
     {{ JSON.stringify(users.data.value.map(u => u.name), null, 4) }}
   </pre>
