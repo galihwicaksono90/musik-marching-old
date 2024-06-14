@@ -9,12 +9,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = "mongodb://127.0.0.1:27017/musik"
+  provider = "sqlite"
+  url      = "file:../musik.db"
 }
 
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id Int @id @default(autoincrement()) 
   name String 
   email String @unique
   password String

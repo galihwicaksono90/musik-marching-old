@@ -1,20 +1,52 @@
-<script setup>
-import { Button } from "@/components/ui/"
+<script setup lang="ts">
+import { ref } from "vue"
 const { $client } = useNuxtApp()
+import type { RouterInput } from "server"
 
-const users = $client.users.useQuery({}, {
-  initialData: []
+const userCreate = $client.users.create.useMutation()
+
+const createUser = async (input: RouterInput["users"]["create"]) => {
+  const newUser = await userCreate.mutateAsync(input)
+
+  if (newUser) {
+    alert(`user created ${newUser.name}`)
+    return
+  }
+}
+const input: Ref<RouterInput["users"]["create"]> = ref({
+  name: "",
+  password: "",
+  email: "",
 })
-</script>
-<template>
-  <Button variant="outline">
-    hello
-  </Button>
 
-  <pre>
-    {{ JSON.stringify(users.data.value.map(u => u.name), null, 4) }}
-  </pre>
-  <button @click="refetch">
-    refetch
-  </button>
+const onSubmit = async () => {
+  await createUser(input.value)
+}
+
+</script>
+
+<template>
+  <div class="form">
+    <label for="name">
+      Name
+    </label>
+    <input v-model="input.name" name="name" />
+    <label for="name">
+      Password
+    </label>
+    <input v-model="input.password" name="password" type="password" />
+    <label for="email">
+      Email
+    </label>
+    <input v-model="input.email" name="email" />
+    <button @click="onSubmit">{{ userCreate.isPending.value ? "error" : "create" }}</button>
+  </div>
 </template>
+
+<style>
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+}
+</style>
