@@ -16,7 +16,13 @@ export default defineNuxtPlugin((nuxtApp) => {
     trpc: {
       links: [
         httpBatchLink({
-          url: 'http://localhost:4000/',
+          url: 'http://localhost:4000/trpc/',
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: 'include',
+            });
+          },
         }),
       ],
     }

@@ -1,8 +1,9 @@
-import { router } from "../trpc"
-import { prisma } from "../prisma"
-import { publicProcedure, protectedProcedure } from "../trpc"
+import { router } from "@/trpc/trpc"
+import { prisma } from "@/prisma"
+import { publicProcedure } from "../trpc"
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
+import { protectedProcedure } from "@/trpc/middlewares"
 
 const userCreateInput = z.object({
   name: z.string().min(1),
@@ -13,6 +14,9 @@ const userCreateInput = z.object({
 export type UserCreateInput = z.infer<typeof userCreateInput>
 
 export const userRouter = router({
+  me: protectedProcedure.query(({ ctx }) => {
+    return ctx.user
+  }),
   all: publicProcedure.query(async () => {
     const allUsers = await prisma.user.findMany({ take: 10 })
     return allUsers
@@ -50,7 +54,4 @@ export const userRouter = router({
       })
       return newUser
     }),
-  alll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.session
-  })
 })

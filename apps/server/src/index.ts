@@ -1,15 +1,16 @@
+import './loadEnv'
+import { createServer } from "@/core/createServer"
 
-import { createHTTPServer } from "@trpc/server/adapters/standalone"
-import cors from 'cors'
-import { appRouter } from "./routers"
-import { createContext } from "./context"
+(async () => {
+  const server = createServer()
+  try {
+    server.listen({
+      port: Number(process.env.PORT)
+    })
+  } catch (err) {
+    console.log(err)
+    server.close()
+  }
+})()
 
-const server = createHTTPServer({
-  middleware: cors({}),
-  router: appRouter,
-  createContext
-})
-
-server.listen(4000)
-
-export type { AppRouter, RouterInput, RouterOutput } from "./routers"
+export type { AppRouter, RouterInput, RouterOutput } from "./modules/trpc/routers"
