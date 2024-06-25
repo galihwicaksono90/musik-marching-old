@@ -3,55 +3,45 @@ import { prisma } from "../../../prisma"
 import { publicProcedure } from "../trpc"
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
-import { protectedProcedure } from "../middlewares"
+import { protectedProcedure } from "../trpc"
+import { findUserByEmail, registerUserAsContributor } from "./users.service"
 
-const userCreateInput = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(10)
-})
-
-export type UserCreateInput = z.infer<typeof userCreateInput>
 
 export const userRouter = router({
   me: protectedProcedure.query(({ ctx }) => {
     return ctx.user
   }),
-  all: publicProcedure.query(async () => {
-    const allUsers = await prisma.user.findMany({ take: 10 })
-    return allUsers
-  }),
-  oneByEmail: publicProcedure.
-    input(z.object({ email: z.string() }))
-    .query(async ({ input }) => {
-      return await prisma.user.findFirstOrThrow({
-        where: ({ email: input.email }),
-        select: {
-          id: true,
-          email: true,
-        }
-      })
+  allContributors: publicProcedure
+    .query(async () => {
+      const allContributors = await prisma.contributor.findMany({ take: 10, include: { user: true } })
+      return allContributors
     }),
-  create: publicProcedure.
-    input(userCreateInput)
+  all: publicProcedure
+    .query(async () => {
+      const allUsers = await prisma.user.findMany({ take: 10 })
+      return allUsers
+    }),
+  oneUserByEmail: publicProcedure
+    .input(z.object({ email: z.string() }))
+    .query(async ({ input }) => {
+      return await findUserByEmail({ email: input.email })
+    }),
+  registerAsContributor: publicProcedure
+    .input(z.object({ userId: z.string() }))
     .mutation(async ({ input }) => {
-
-      const userExists = await prisma.user.findUnique({
-        where: {
-          email: input.email
-        }
+      const newContributor = registerUserAsContributor({
+        userId: input.userId
       })
 
-      if (userExists) {
+      if (!newContributor) {
         throw new TRPCError({
-          code: "CONFLICT",
-          message: "User already exists",
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to register user as contributor"
         })
       }
 
-      const newUser = await prisma.user.create({
-        data: input
-      })
-      return newUser
+
+      return newContributor
     }),
+
 })

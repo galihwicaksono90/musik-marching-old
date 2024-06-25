@@ -20,7 +20,7 @@ model Admin {
   password          String?
   createdAt         DateTime   @default(now())
   purchasesVerified Purchase[]
-  musicVerified     Music[]
+  scoreVerified     Score[]
 }
 
 model User {
@@ -39,19 +39,19 @@ model Contributor {
   name      String
   user      User      @relation(fields: [userId], references: [id])
   userId    String    @unique
-  uploads   Music[]
+  uploads   Score[]
   createdAt DateTime  @default(now())
   updatedAt DateTime?
   deletedAt DateTime?
 }
 
-model Music {
+model Score {
   id           String      @id @default(uuid())
   title        String
   description  String
   price        Float
   isExclusive  Boolean
-  tags         Tag[]
+  tags         ScoreTag[]
   author       Contributor @relation(fields: [authorId], references: [id])
   authorId     String      @unique
   createdAt    DateTime    @default(now())
@@ -64,17 +64,27 @@ model Music {
 }
 
 model Tag {
-  id        String    @id @default(uuid())
+  id        String     @id @default(uuid())
   title     String
-  music     Music[]
-  createdAt DateTime  @default(now())
+  score     ScoreTag[]
+  createdAt DateTime   @default(now())
   updatedAt DateTime?
   deletedAt DateTime?
 }
 
+model ScoreTag {
+  id        String    @id @default(uuid())
+  score     Score     @relation(fields: [scoreId], references: [id])
+  scoreId   String
+  tag       Tag       @relation(fields: [tagId], references: [id])
+  tagId     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+}
+
 model Purchase {
-  music   Music  @relation(fields: [musicId], references: [id])
-  musicId String
+  score   Score  @relation(fields: [scoreId], references: [id])
+  scoreId String
   user    User   @relation(fields: [userId], references: [id])
   userId  String
 
@@ -84,5 +94,5 @@ model Purchase {
   verifiedBy   Admin    @relation(fields: [verifiedById], references: [id])
   verifiedById String
 
-  @@id([musicId, userId])
+  @@id([scoreId, userId])
 }

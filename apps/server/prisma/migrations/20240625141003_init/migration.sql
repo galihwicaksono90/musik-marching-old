@@ -29,7 +29,7 @@ CREATE TABLE "Contributor" (
 );
 
 -- CreateTable
-CREATE TABLE "Music" (
+CREATE TABLE "Score" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -41,8 +41,8 @@ CREATE TABLE "Music" (
     "verifiedById" TEXT,
     "updatedAt" DATETIME,
     "deletedAt" DATETIME,
-    CONSTRAINT "Music_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Contributor" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Music_verifiedById_fkey" FOREIGN KEY ("verifiedById") REFERENCES "Admin" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "Score_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Contributor" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Score_verifiedById_fkey" FOREIGN KEY ("verifiedById") REFERENCES "Admin" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -55,26 +55,29 @@ CREATE TABLE "Tag" (
 );
 
 -- CreateTable
+CREATE TABLE "ScoreTag" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "scoreId" TEXT NOT NULL,
+    "tagId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME,
+    CONSTRAINT "ScoreTag_scoreId_fkey" FOREIGN KEY ("scoreId") REFERENCES "Score" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "ScoreTag_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "Tag" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "Purchase" (
-    "musicId" TEXT NOT NULL,
+    "scoreId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "isExclusive" BOOLEAN NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "verifiedAt" DATETIME NOT NULL,
     "verifiedById" TEXT NOT NULL,
 
-    PRIMARY KEY ("musicId", "userId"),
-    CONSTRAINT "Purchase_musicId_fkey" FOREIGN KEY ("musicId") REFERENCES "Music" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    PRIMARY KEY ("scoreId", "userId"),
+    CONSTRAINT "Purchase_scoreId_fkey" FOREIGN KEY ("scoreId") REFERENCES "Score" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Purchase_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Purchase_verifiedById_fkey" FOREIGN KEY ("verifiedById") REFERENCES "Admin" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "_MusicToTag" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL,
-    CONSTRAINT "_MusicToTag_A_fkey" FOREIGN KEY ("A") REFERENCES "Music" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "_MusicToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -87,13 +90,7 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Contributor_userId_key" ON "Contributor"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Music_authorId_key" ON "Music"("authorId");
+CREATE UNIQUE INDEX "Score_authorId_key" ON "Score"("authorId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Music_verifiedById_key" ON "Music"("verifiedById");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_MusicToTag_AB_unique" ON "_MusicToTag"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_MusicToTag_B_index" ON "_MusicToTag"("B");
+CREATE UNIQUE INDEX "Score_verifiedById_key" ON "Score"("verifiedById");

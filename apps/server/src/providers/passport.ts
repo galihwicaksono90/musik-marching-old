@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { Strategy as GoogleOAuth2, type StrategyOptions } from "passport-google-oauth20"
 import { User } from "@prisma/client"
 import { prisma } from "../prisma";
+import { upsertUser } from "../modules/trpc/users/users.service"
 
 declare module 'fastify' {
   interface PassportUser extends User { }
@@ -15,17 +16,9 @@ const googleOAuth2Options: StrategyOptions = {
 }
 
 fastifyPassport.use('googleOAuth2', new GoogleOAuth2(googleOAuth2Options, async function (accessToken, refreshToken, profile, done) {
-  const user = await prisma.user.upsert({
-    where: {
-      email: profile.emails![0].value
-    },
-    update: {
-      name: profile.displayName
-    },
-    create: {
-      name: profile.displayName,
-      email: profile.emails![0].value
-    }
+  const user = await upsertUser({
+    name: profile.displayName,
+    email: profile.emails![0].value
   })
   return done(null, user)
 }))
