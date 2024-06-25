@@ -6,7 +6,8 @@ import path from "path"
 const secureSessionPluginOptions: SecureSessionPluginOptions = {
   key: fs.readFileSync(path.join(__dirname, "../..", "secret-key")),
   cookie: {
-    path: "/"
+    path: "/",
+    maxAge: 1000 * 60 * 60 * 24 * 30 // 1 month
   }
 }
 

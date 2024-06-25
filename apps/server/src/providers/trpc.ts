@@ -1,6 +1,6 @@
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
-import { appRouter } from "@/trpc/routers"
-import { createContext } from "@/trpc/context"
+import { appRouter } from "../modules/trpc/routers"
+import { createContext } from "../modules/trpc/context"
 import { FastifyInstance } from "fastify"
 
 

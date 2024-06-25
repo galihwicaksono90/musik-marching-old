@@ -1,14 +1,9 @@
 {
   "extends": "tsconfig/base.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/trpc/*": [
-        "./src/modules/trpc/*"
-      ]
-    }
-  }
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

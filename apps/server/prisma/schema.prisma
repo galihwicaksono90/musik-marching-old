@@ -13,9 +13,76 @@ datasource db {
   url      = "file:../musik.db"
 }
 
+model Admin {
+  id                String     @id @default(uuid())
+  name              String
+  email             String     @unique
+  password          String?
+  createdAt         DateTime   @default(now())
+  purchasesVerified Purchase[]
+  musicVerified     Music[]
+}
+
 model User {
-  id Int @id @default(autoincrement()) 
-  name String 
-  email String @unique
-  password String
+  id            String       @id @default(uuid())
+  name          String
+  email         String       @unique
+  password      String?
+  createdAt     DateTime     @default(now())
+  isContributor Boolean      @default(false)
+  contributor   Contributor?
+  purchase      Purchase[]
+}
+
+model Contributor {
+  id        String    @id @default(uuid())
+  name      String
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @unique
+  uploads   Music[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+}
+
+model Music {
+  id           String      @id @default(uuid())
+  title        String
+  description  String
+  price        Float
+  isExclusive  Boolean
+  tags         Tag[]
+  author       Contributor @relation(fields: [authorId], references: [id])
+  authorId     String      @unique
+  createdAt    DateTime    @default(now())
+  verifiedAt   DateTime?
+  verifiedBy   Admin?      @relation(fields: [verifiedById], references: [id])
+  verifiedById String?     @unique
+  updatedAt    DateTime?
+  deletedAt    DateTime?
+  purchase     Purchase[]
+}
+
+model Tag {
+  id        String    @id @default(uuid())
+  title     String
+  music     Music[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+}
+
+model Purchase {
+  music   Music  @relation(fields: [musicId], references: [id])
+  musicId String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+
+  isExclusive  Boolean
+  createdAt    DateTime @default(now())
+  verifiedAt   DateTime
+  verifiedBy   Admin    @relation(fields: [verifiedById], references: [id])
+  verifiedById String
+
+  @@id([musicId, userId])
 }

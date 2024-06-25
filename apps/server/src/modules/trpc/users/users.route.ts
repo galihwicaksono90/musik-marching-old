@@ -1,9 +1,9 @@
-import { router } from "@/trpc/trpc"
-import { prisma } from "@/prisma"
+import { router } from "../trpc"
+import { prisma } from "../../../prisma"
 import { publicProcedure } from "../trpc"
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
-import { protectedProcedure } from "@/trpc/middlewares"
+import { protectedProcedure } from "../middlewares"
 
 const userCreateInput = z.object({
   name: z.string().min(1),

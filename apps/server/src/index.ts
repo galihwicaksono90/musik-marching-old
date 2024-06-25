@@ -1,5 +1,5 @@
 import './loadEnv'
-import { createServer } from "@/core/createServer"
+import { createServer } from "./core/createServer"
 
 (async () => {
   const server = createServer()
