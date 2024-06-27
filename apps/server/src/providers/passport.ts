@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 import { Strategy as GoogleOAuth2, type StrategyOptions } from "passport-google-oauth20"
 import { User } from "@prisma/client"
 import { prisma } from "../prisma";
-import { upsertUser } from "../modules/trpc/users/users.service"
+import { upsertUser } from "../modules/user/user.service"
 
 declare module 'fastify' {
   interface PassportUser extends User { }
@@ -28,11 +28,15 @@ fastifyPassport.registerUserSerializer(async (user) => {
 })
 
 fastifyPassport.registerUserDeserializer(async (input: User) => {
-  const authUser = prisma.user.findFirstOrThrow({
+  const authUser = prisma.user.findFirst({
     where: {
       email: input.email as string
     }
   })
+
+  if (!authUser) {
+    return null
+  }
 
   return authUser
 })

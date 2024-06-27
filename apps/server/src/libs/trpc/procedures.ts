@@ -1,5 +1,6 @@
-import { publicProcedure } from "../trpc"
 import { TRPCError } from "@trpc/server"
+import { publicProcedure } from "./trpc"
+import { userType } from "../../types"
 
 export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
   const { req } = ctx
@@ -18,8 +19,8 @@ export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
 export const contributorProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   const { req } = ctx
 
-  const user = req.user
-  if (!user?.isContributor) {
+  const role = req.user?.role
+  if (role !== userType.CONTRIBUTOR) {
     throw new TRPCError({ code: "FORBIDDEN" })
   }
 
@@ -29,3 +30,19 @@ export const contributorProcedure = protectedProcedure.use(async ({ ctx, next })
     }
   })
 })
+
+export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  const { req } = ctx
+
+  const role = req.user?.role
+  if (role === userType.ADMIN) {
+    throw new TRPCError({ code: "FORBIDDEN" })
+  }
+
+  return next({
+    ctx: {
+      ...ctx
+    }
+  })
+})
+

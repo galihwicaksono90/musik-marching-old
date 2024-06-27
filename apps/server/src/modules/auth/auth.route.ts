@@ -1,4 +1,4 @@
-import { router, protectedProcedure } from "../trpc"
+import { router, protectedProcedure } from "../../libs/trpc"
 
 export const authRouter = router({
   me: protectedProcedure.query(async ({ ctx }) => {

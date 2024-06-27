@@ -8,4 +8,5 @@ export const createContext = async (opts: CreateFastifyContextOptions) => {
     res: opts.res,
   };
 };
+
 export type Context = Awaited<ReturnType<typeof createContext>>

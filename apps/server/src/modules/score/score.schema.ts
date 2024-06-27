@@ -1,5 +1,14 @@
 import { z } from "zod"
 
+export const createScoreSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  tags: z.array(z.string()).default([]),
+  price: z.number(),
+  isExclusive: z.boolean().default(false),
+  author: z.string()
+})
+
 export const paginationSchema = z.object({
   take: z.number().optional().default(10),
   skip: z.number().optional(),
@@ -24,3 +33,4 @@ export const publishedScoresSchema = z.object({
 export type ScoreOrderSchema = z.infer<typeof scoreSortingSchema>
 export type Pagination = z.infer<typeof paginationSchema>
 export type PublishedScoresSchema = z.infer<typeof publishedScoresSchema>
+export type CreateScoreSchema = z.infer<typeof createScoreSchema>

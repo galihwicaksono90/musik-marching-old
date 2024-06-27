@@ -1,6 +1,6 @@
-import { type Prisma } from "@prisma/client"
-import { prisma } from "../../../prisma"
+import { prisma } from "../../prisma"
 import { z } from "zod"
+import { userType } from "../../types"
 
 const userCreateInput = z.object({
   name: z.string().min(1),
@@ -8,6 +8,12 @@ const userCreateInput = z.object({
 })
 
 export type UserCreateInput = z.infer<typeof userCreateInput>
+
+export async function getAllUsers() {
+  const user = await prisma.user.findMany()
+  return user
+}
+
 
 export async function upsertUser({ email, name }: UserCreateInput) {
   const user = await prisma.user.upsert({
@@ -19,28 +25,24 @@ export async function upsertUser({ email, name }: UserCreateInput) {
     },
     create: {
       name,
-      email
+      email,
+      role: userType.USER
     }
   })
   return user
 }
 
 export async function registerUserAsContributor({ userId }: { userId: string }) {
-  try {
-    const contributor = await prisma.contributor.create({
-      data: {
-        user: {
-          connect: {
-            id: userId
-          }
-        },
-        name: "mbuh"
-      },
-    })
-    return contributor
-  } catch (error) {
-    return null
-  }
+  const contributor = await prisma.user.update({
+    where: {
+      id: userId
+    },
+    data: {
+      role: userType.CONTRIBUTOR
+    }
+  })
+
+  return contributor
 }
 
 export async function findUserById({ id }: { id: string }) {
@@ -54,8 +56,6 @@ export async function findUserById({ id }: { id: string }) {
   return user
 }
 
-
-
 export async function findUserByEmail({ email }: { email: string }) {
   const user = await prisma.user.findFirst({
     where: ({ email: email }),
@@ -63,6 +63,13 @@ export async function findUserByEmail({ email }: { email: string }) {
       id: true,
       email: true,
     }
+  })
+  return user
+}
+
+export async function findContributorByEmail({ id }: { id: string }) {
+  const user = await prisma.user.findFirst({
+    where: ({ id: id, role: userType.CONTRIBUTOR }),
   })
   return user
 }

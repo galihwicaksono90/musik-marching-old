@@ -1,32 +1,32 @@
-import { router } from "../trpc"
-import { prisma } from "../../../prisma"
-import { publicProcedure } from "../trpc"
+import { router } from "../../libs/trpc"
+import { prisma } from "../../prisma"
+import { publicProcedure, protectedProcedure, adminProcedure } from "../../libs/trpc"
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
-import { protectedProcedure } from "../trpc"
-import { findUserByEmail, registerUserAsContributor } from "./users.service"
+import { findUserByEmail, registerUserAsContributor, getAllUsers } from "./user.service"
+import { userType } from "../../types"
 
 
 export const userRouter = router({
-  me: protectedProcedure.query(({ ctx }) => {
-    return ctx.user
-  }),
   allContributors: publicProcedure
     .query(async () => {
-      const allContributors = await prisma.contributor.findMany({ take: 10, include: { user: true } })
+      const allContributors = await prisma.user.findMany({
+        where: {
+          role: userType.CONTRIBUTOR
+        }
+      })
       return allContributors
     }),
   all: publicProcedure
     .query(async () => {
-      const allUsers = await prisma.user.findMany({ take: 10 })
-      return allUsers
+      return await getAllUsers()
     }),
-  oneUserByEmail: publicProcedure
+  oneByEmail: publicProcedure
     .input(z.object({ email: z.string() }))
     .query(async ({ input }) => {
       return await findUserByEmail({ email: input.email })
     }),
-  registerAsContributor: publicProcedure
+  registerAsContributor: adminProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(async ({ input }) => {
       const newContributor = registerUserAsContributor({
